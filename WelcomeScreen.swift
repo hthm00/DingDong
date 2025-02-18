@@ -9,6 +9,7 @@ import SwiftUI
 
 struct WelcomeScreen: View {
     @Binding var intro: PageIntro
+    @Binding var isActive: Bool
     var size: CGSize
     
     //Animation Properties
@@ -59,19 +60,33 @@ struct WelcomeScreen: View {
                                     .frame(maxWidth: .infinity)
                                 Spacer(minLength: 10)
                                 
-                                Button {
-                                    changeIntro()
-                                } label: {
-                                    Text("Continue")
-                                        .fontWeight(.bold)
-                                        .frame(width: size.width * 0.4)
-                                        .padding(.vertical, 15)
-                                        .background {
-                                            Capsule().fill(.secondary)
-                                        }
+                                if intro != pageIntros.last {
+                                    Button {
+                                        changeIntro()
+                                    } label: {
+                                        Text("Continue")
+                                            .fontWeight(.bold)
+                                            .frame(width: size.width * 0.4)
+                                            .padding(.vertical, 15)
+                                            .background {
+                                                Capsule().fill(.secondary)
+                                            }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.bottom, 30)
+                                } else {
+                                    NavigationLink(destination: ScanRoomView(isActive: $isActive)) {
+                                        Text("Continue")
+                                            .fontWeight(.bold)
+                                            .frame(width: size.width * 0.4)
+                                            .padding(.vertical, 15)
+                                            .background {
+                                                Capsule().fill(.secondary)
+                                            }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.bottom, 30)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding(.bottom, 30)
                             }
                             
                         } else {
@@ -113,7 +128,6 @@ struct WelcomeScreen: View {
                     if !isNavBarHidden {
                         Text("Skip")
                             .fontWeight(.semibold)
-                            .kerning(1.2)
                     }
                 })
             }

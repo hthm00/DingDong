@@ -7,7 +7,11 @@ struct ContentView: View {
     }
     
     var body: some View {
-        HomeView()
+        NavigationStack {
+            HomeView(isActive: false)
+                .backgroundStyle(.white)
+        }
+//        .frame(maxHeight: .infinity)
     }
     
     func registerCustomFont(name: String) {
@@ -28,11 +32,111 @@ struct ContentView: View {
 struct HomeView: View {
     // View Properties
     @State private var activeIntros: PageIntro = pageIntros[0]
+    @State var isActive: Bool
+    @State private var isShowingScanView = false
     var body: some View {
         GeometryReader {
             let size = $0.size
-            WelcomeScreen(intro: $activeIntros, size: size)
+            WelcomeScreen(intro: $activeIntros, isActive: $isActive, size: size)
         }
     }
 }
+
+/// Scan Room View allows acess to camera to outline a 3D model of a room
+struct ScanRoomView: View {
+    @Environment(\.presentationMode) var presentationMode
+    
+    /// RoomController instance
+    @ObservedObject var roomController = ScanRoomController.instance
+    /// Condition when scanning is completed
+    @State var doneScanning: Bool = false
+    
+    @Binding var isActive: Bool
+    
+    var body: some View {
+        VStack {
+            ZStack (alignment: .bottom) {
+                /// Camera View
+                ScanRoomViewRepresentable().onAppear(perform: {
+                    roomController.startSession()
+                })
+                .onDisappear(perform: {
+                    roomController.stopSession()
+                })
+                .ignoresSafeArea()
+                
+//                /// Share sheet
+//                if doneScanning, let url = roomController.url {
+//                    ShareLink(item: url) {
+//                        Image(systemName: "square.and.arrow.up")
+//                    }
+//                    .font(.title)
+//                }
+                // TODO: Remove this
+                /// Share sheet
+                if doneScanning, let url = roomController.url {
+                    
+                    HStack (alignment: .center){
+                        Spacer()
+                        Button {} label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        
+                        Spacer()
+                        Button(action: {
+                            isActive.toggle()
+                        }, label: {
+                            ZStack(alignment: .center){
+                                Image("Round-Button")
+                                Image(systemName: "checkmark")
+                                    .resizable()
+                                    .frame(width: 22, height: 18)
+                                    .scaledToFit()
+                            }
+                            .frame(width: 64, height: 64)
+                        })
+                        
+                        
+                        Spacer()
+                        ShareLink(item: url) {
+                            Image(systemName: "square.and.arrow.up")
+                            
+                        }
+                        Spacer()
+                    }
+                    .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                }
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: BackButton(), trailing: DoneButton)
+    }
+    
+    /// Finish Scan Button
+    var DoneButton: some View {
+        VStack {
+            /// Done button
+            if doneScanning == false {
+                Button(action: {
+                    roomController.stopSession()
+                    self.doneScanning = true
+                }, label: {
+                    ZStack(alignment: .center){
+                        Color("Grey")
+                            .opacity(0.5)
+                        Text("Done")
+                            .font(Font.custom("Cambay-Regular", size: 14)
+                                .weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.top, 3)
+                    }
+                    .frame(width: 60, height: 32)
+                    .cornerRadius(8)
+                })
+            }
+        }
+    }
+}
+
 
