@@ -37,7 +37,8 @@ struct HomeView: View {
     var body: some View {
         GeometryReader {
             let size = $0.size
-            WelcomeScreen(intro: $activeIntros, isActive: $isActive, size: size)
+//            WelcomeScreen(intro: $activeIntros, isActive: $isActive, size: size)
+            ScanRoomView(isActive: $isActive)
         }
     }
 }
@@ -78,11 +79,6 @@ struct ScanRoomView: View {
                     
                     HStack (alignment: .center){
                         Spacer()
-                        Button {} label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                        
-                        Spacer()
                         Button(action: {
                             isActive.toggle()
                         }, label: {
@@ -95,16 +91,16 @@ struct ScanRoomView: View {
                             }
                             .frame(width: 64, height: 64)
                         })
-                        
-                        
-                        Spacer()
-                        ShareLink(item: url) {
-                            Image(systemName: "square.and.arrow.up")
-                            
-                        }
                         Spacer()
                     }
                     .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                    .overlay(alignment: .trailing) {
+                        ShareLink(item: url) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                        .padding(.trailing, 30)
+                    }
                 }
             }
         }
