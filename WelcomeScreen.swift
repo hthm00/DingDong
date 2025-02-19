@@ -40,13 +40,14 @@ struct WelcomeScreen: View {
                             ], startPoint: .top, endPoint: .bottom)
                         }
                     // Moving up
-                        .offset(y: isViewShowing ? 0 : -size.height / 2)
-                        .opacity(isViewShowing ? 1 : 0)
+                        .offset(x: isViewShowing ? 0 : -size.width)
+//                        .opacity(isViewShowing ? 1 : 0)
                     
                     // Title & action
                     VStack(alignment: .leading) {
                         Text(intro.title)
                             .font(.custom("Merriweather-Black", size: 40))
+                            .foregroundStyle(Color("AccentColor"))
                             .fontWeight(.black)
                             .padding(.bottom,5)
                         Text(intro.subTitle)
@@ -95,15 +96,15 @@ struct WelcomeScreen: View {
                     }
                     .padding()
                     // Moving down
-                    .offset(y: isViewShowing ? 0 : size.height / 2)
-                    .opacity(isViewShowing ? 1 : 0)
+                    .offset(x: isViewShowing ? 0 : size.width)
+//                    .opacity(isViewShowing ? 1 : 0)
                 })
                 .ignoresSafeArea()
             }
         }
         // Whole view
-        .offset(y: isWholeViewHidden ? size.height / 2 : 0)
-        .opacity(isWholeViewHidden ? 0 : 1)
+        .offset(x: isWholeViewHidden ? size.width : 0)
+//        .opacity(isWholeViewHidden ? 0 : 1)
         .overlay(alignment: .topLeading) {
             HStack {
                 // No back on first page

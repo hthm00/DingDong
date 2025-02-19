@@ -37,8 +37,8 @@ struct HomeView: View {
     var body: some View {
         GeometryReader {
             let size = $0.size
-//            WelcomeScreen(intro: $activeIntros, isActive: $isActive, size: size)
-            ScanRoomView(isActive: $isActive)
+            WelcomeScreen(intro: $activeIntros, isActive: $isActive, size: size)
+//            ScanRoomView(isActive: $isActive)
         }
     }
 }
