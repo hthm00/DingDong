@@ -37,9 +37,38 @@ let package = Package(
             ]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/firebase/firebase-ios-sdk", "11.8.1"..<"12.0.0")
+    ],
     targets: [
         .executableTarget(
             name: "AppModule",
+            dependencies: [
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAnalyticsOnDeviceConversion", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAnalyticsWithoutAdIdSupport", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAppCheck", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAppDistribution-Beta", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAuthCombine-Community", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseDatabase", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseDynamicLinks", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseFirestoreCombine-Community", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseFunctions", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseFunctionsCombine-Community", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseInAppMessaging-Beta", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseInstallations", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseMLModelDownloader", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseMessaging", package: "firebase-ios-sdk"),
+                .product(name: "FirebasePerformance", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseRemoteConfig", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseStorage", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseStorageCombine-Community", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseVertexAI", package: "firebase-ios-sdk")
+            ],
             path: ".",
             resources: [
                 .process("Resources")
