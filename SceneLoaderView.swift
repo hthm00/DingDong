@@ -21,8 +21,7 @@ struct RoomLoaderView: View {
     
     var showOverlayOptions = true
 //    let fileRef: StorageReference
-//    let url: URL?
-    let url: URL? = Bundle.main.url(forResource: "Room-example_furnished", withExtension: "usdz")
+    let url: URL?
     
     //    let chairModelURL = Bundle.main.url(forResource: "bisou-accent-chair", withExtension: "usdz")
     let chairModelURL = Bundle.main.url(forResource: "cullen-shiitake-dining-chair", withExtension: "usdz")
@@ -36,7 +35,7 @@ struct RoomLoaderView: View {
     let doorImage = UIImage(named: "door-white.png")
     let windowImage = UIImage(named: "window_PNG17640.png")
     
-    let floorResource = MaterialResource(diffuse: UIImage(named: "WoodFlooringAshSuperWhite001_COL_2K.jpg"), normal: UIImage(named: "WoodFlooringAshSuperWhite001_NRM_2K.jpg"))
+    let floorResource = MaterialResource(diffuse: UIImage(named: "concrete-floor.jpg"))
     let wallResource = MaterialResource(
         diffuse: UIImage(named: "CeramicPlainWhite001_COL_2K.jpg"),
         normal: UIImage(named: "CeramicPlainWhite001_NRM_2K.png"),
