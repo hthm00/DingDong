@@ -23,7 +23,7 @@ class SceneLoader: ObservableObject {
     private(set) var groundLevel: Float = 0.0 // Ground level of the scene
     
     /// Load the scene
-    func loadScene(from sceneURL: URL?) async {
+    func loadScene(from sceneURL: URL?, floor floorResource: MaterialResource? = nil) async {
 //        let sceneURL = try? await UserManager.shared.downloadRoomAsync(fileRef: fileRef)
         
         guard let sceneURL = sceneURL, let scene = try? SCNScene(url: sceneURL, options: nil) else {
@@ -34,6 +34,10 @@ class SceneLoader: ObservableObject {
             self.scene = scene
             // Access the root node of the scene
             let rootNode = scene.rootNode
+            
+            if let floorResource = floorResource {
+                self.addFloor(infinity: true, from: floorResource)
+            }
             
             self.groundLevel = self.findLowestYCoordinate(in: rootNode)
             
@@ -133,6 +137,9 @@ class SceneLoader: ObservableObject {
     /// Hide a wall
     func hideWall(_ wall: SCNNode?) {
         if let wallToHide = wall {
+            if wallToHide.opacity != 1 {
+                return
+            }
             SCNTransaction.begin()
             SCNTransaction.animationDuration = 0.5
             sceneModel?.walls?.forEach({ wall in

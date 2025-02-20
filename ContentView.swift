@@ -10,9 +10,9 @@ struct ContentView: View {
     }
     
     var body: some View {
-            HomeView(isActive: false)
-                .backgroundStyle(.white)
-//        .frame(maxHeight: .infinity)
+//            HomeView(isActive: false)
+//                .backgroundStyle(.white)
+        SceneTemplateView()
     }
     
     func registerCustomFont(name: String) {
@@ -97,7 +97,8 @@ struct ScanRoomView: View {
                                     isActive.toggle()
                                 }, label: {
                                     NavigationLink {
-                                        RoomLoaderView(url: url)
+//                                        RoomLoaderView(url: url)
+                                        SceneTemplateView()
                                     } label: {
                                         ZStack(alignment: .center){
                                             Image("Round-Button")

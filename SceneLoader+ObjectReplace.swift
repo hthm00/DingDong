@@ -16,6 +16,80 @@ extension SceneLoader {
         })
     }
     
+    /// Animate all nodes
+    func animateAllNodes(ofType type: CapturedRoom.Object.Category, onFloorLevel: Bool = true) {
+        var objectNodes: [SCNNode]? = nil
+        
+        switch type {
+        case .storage, .refrigerator, .stove, .bed, .sink, .washerDryer, .toilet, .bathtub, .oven, .dishwasher, .sofa, .chair, .fireplace, .television, .stairs, .table:
+            objectNodes = sceneModel?.nodes(forCategory: type)
+        @unknown default:
+            return
+        }
+        
+        objectNodes?.forEach({ node in
+            let originalPos = node.position.y
+            node.opacity = 0.0
+            node.position.y -= Float((node.boundingBox.max.y) - (node.boundingBox.min.y))
+            
+            // Start animating
+            let randomAnimationTime = Double.random(in: 0.5...1)
+            // Add new nodes
+            DispatchQueue.main.asyncAfter(deadline: .now() + randomAnimationTime + Double.random(in: 0...1)) {
+                let animationTime = Double.random(in: 0.5...1.0)
+                let fadeIn = SCNAction.fadeIn(duration: animationTime)
+                if onFloorLevel {
+                    let move = SCNAction.move(to: SCNVector3(node.position.x, self.groundLevel, node.position.z), duration: animationTime)
+                    node.runAction(fadeIn)
+                    node.runAction(move)
+                } else {
+                    let move = SCNAction.move(to: SCNVector3(node.position.x, originalPos, node.position.z), duration: animationTime)
+                    node.runAction(fadeIn)
+                    node.runAction(move)
+                }
+                
+            }
+        })
+        
+    }
+    
+    /// Animate all nodes
+    func animateAllNodes(ofType type: CapturedRoom.Surface.Category, onFloorLevel: Bool = true) {
+        var objectNodes: [SCNNode]? = nil
+        
+        switch type {
+        case .door(isOpen: false), .door(isOpen: true), .window, .wall, .opening, .floor:
+            objectNodes = sceneModel?.nodes(forCategory: type)
+        @unknown default:
+            return
+        }
+        
+        objectNodes?.forEach({ node in
+            let originalPos = node.position.y
+            node.opacity = 0.0
+            node.position.y -= Float((node.boundingBox.max.y) - (node.boundingBox.min.y))
+            
+            // Start animating
+            let randomAnimationTime = Double.random(in: 0.5...1)
+            // Add new nodes
+            DispatchQueue.main.asyncAfter(deadline: .now() + randomAnimationTime + Double.random(in: 0...1)) {
+                let animationTime = Double.random(in: 0.5...1.0)
+                let fadeIn = SCNAction.fadeIn(duration: animationTime)
+                if onFloorLevel {
+                    let move = SCNAction.move(to: SCNVector3(node.position.x, self.groundLevel, node.position.z), duration: animationTime)
+                    node.runAction(fadeIn)
+                    node.runAction(move)
+                } else {
+                    let move = SCNAction.move(to: SCNVector3(node.position.x, originalPos, node.position.z), duration: animationTime)
+                    node.runAction(fadeIn)
+                    node.runAction(move)
+                }
+                
+            }
+        })
+        
+    }
+    
     /// Replace all objects with given model url
     func replaceObjects(ofType type: CapturedRoom.Object.Category, with resourceUrl: URL?, scale: Float = 1, onFloorLevel: Bool = true) {
         var objectNodes: [SCNNode]? = nil
@@ -153,7 +227,11 @@ extension SceneLoader {
         if !infinity {
             floorGeometry.width = CGFloat(boundingBox.max.x - boundingBox.min.x) / 2
             floorGeometry.length = CGFloat(boundingBox.max.z - boundingBox.min.z) / 2
+        } else {
+            floorGeometry.width = 35
+            floorGeometry.length = 35
         }
+        floorGeometry.firstMaterial?.transparency = 0.5
         
         /// Animation
         let floorNode = SCNNode(geometry: floorGeometry)
@@ -161,6 +239,7 @@ extension SceneLoader {
         floorNode.opacity = 0
         floorNode.name = "Floor"
         floorNode.scale = SCNVector3(0.1, 0.1, 0.1)
+        floorNode.geometry?.subdivisionLevel = 3
         sceneModel?.floors?.append(floorNode)
         
         DispatchQueue.main.async {
@@ -173,9 +252,9 @@ extension SceneLoader {
             SCNTransaction.commit()
             
             // Use rotation of the wall to rotate the room
-            if let wallRotation = self.sceneModel?.walls?.first?.simdRotation {
-                floorNode.simdRotation = wallRotation
-            }
+//            if let wallRotation = self.sceneModel?.walls?.first?.simdRotation {
+//                floorNode.simdRotation = wallRotation
+//            }
         }
         
     }

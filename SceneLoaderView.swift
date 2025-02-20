@@ -21,7 +21,8 @@ struct RoomLoaderView: View {
     
     var showOverlayOptions = true
 //    let fileRef: StorageReference
-    let url: URL?
+//    let url: URL?
+    let url: URL? = Bundle.main.url(forResource: "Room-example_furnished", withExtension: "usdz")
     
     //    let chairModelURL = Bundle.main.url(forResource: "bisou-accent-chair", withExtension: "usdz")
     let chairModelURL = Bundle.main.url(forResource: "cullen-shiitake-dining-chair", withExtension: "usdz")
