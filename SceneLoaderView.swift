@@ -14,7 +14,7 @@ struct RoomLoaderView: View {
     @State var scene: SCNScene?
     @State var isGeneratedFirstTime = true
     @State var isGenerating = false
-    @State var sceneView: SceneView?
+    @State var sceneView: RoomModelView?
     @State var isAutoEnablesDefaultLighting = true
     
     @StateObject var viewModel = ProductViewModel()
