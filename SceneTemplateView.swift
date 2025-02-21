@@ -7,18 +7,22 @@
 
 import SwiftUI
 import FirebaseStorage
-import SceneKit
+import RealityKit
 import RoomPlan
 
 struct SceneTemplateView: View {
     @StateObject var sceneLoader = SceneLoader()
-    @State var scene: SCNScene?
     @State var isGeneratedFirstTime = true
     @State var isGenerating = false
     @State var sceneView: SceneView?
     @State var isAutoEnablesDefaultLighting = true
     
     @StateObject var viewModel = ProductViewModel()
+    
+    @GestureState var magnifyBy: CGFloat = 0.001
+    @State var state: CGFloat = 1.0
+    @State var arView = ARView(frame: .zero)
+    @State var camera = GestureDrivenCamera()
     
     var showOverlayOptions = true
 //    let fileRef: StorageReference
@@ -48,30 +52,89 @@ struct SceneTemplateView: View {
 //        metalness: UIImage(named: "PlasterPlain001_METALNESS_1K_METALNESS.png"),
 //        roughness: UIImage(named: "PlasterPlain001_ROUGHNESS_1K_METALNESS.png"))
     
+    // Orbit Parameters
+        @State private var lastOffset: CGSize = .zero
+        @State private var scale: CGFloat = 1.0
+        @State private var rotationX: Float = 0.0  // Horizontal rotation
+        @State private var rotationY: Float = 0.0  // Vertical rotation
+        @State private var distance: Float = 15.0   // Distance from the center (target)
+
+        // The point around which the camera will orbit (center of rotation)
+        let orbitCenter = simd_float3(0, 0, 0)  // Set to whatever your target point is
+        
+    
     var body: some View {
-        if let _ = sceneLoader.scene {
-            ZStack {
-                sceneView
-                    .edgesIgnoringSafeArea(.all)
-                if showOverlayOptions {
-                    overlayOptionsView
-                }
-            }
-            .onAppear {
-                withAnimation(.easeIn) {
-                    self.sceneView = SceneView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting)
-                }
-            }
-//            .customNavBar()
-        } else {
-            ProgressView()
-                .onAppear() {
-                    Task {
-                        await self.sceneLoader.loadScene(from: url)
+        if #available(iOS 17.0, *) {
+            if let _ = sceneLoader.scene {
+                ZStack {
+                    sceneView
+                        .edgesIgnoringSafeArea(.all)
+                        .gesture(
+                            DragGesture()
+                                                .onChanged { value in
+                                                    let deltaX = Float(value.translation.width - lastOffset.width) * 0.01
+                                                    let deltaY = Float(value.translation.height - lastOffset.height) * 0.01
+                                                    
+                                                    rotationX += deltaX
+                                                    rotationY += deltaY
+                                                    
+                                                    updateCameraPosition()
+                                                    
+                                                    lastOffset = value.translation
+                                                }
+                                                .onEnded { _ in
+                                                    lastOffset = .zero
+                                                }
+                        )
+                        .gesture(
+                            MagnifyGesture()
+                                                .onChanged { value in
+                                                    let zoomAmount = Float(value.magnification - scale) * 5.0 // Zoom sensitivity
+                                                    distance -= zoomAmount
+                                                    
+                                                    updateCameraPosition()
+                                                    
+                                                    scale = value.magnification
+                                                }
+                                                .onEnded { _ in
+                                                    scale = 1.0
+                                                }
+                        )
+                    if showOverlayOptions {
+                        overlayOptionsView
                     }
                 }
+                .onAppear {
+                    withAnimation(.easeIn) {
+                        self.sceneView = SceneView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView)
+                    }
+                }
+                //            .customNavBar()
+            } else {
+                ProgressView()
+                    .onAppear() {
+                        Task {
+                            await self.sceneLoader.loadScene(from: url)
+                        }
+                    }
+            }
+        } else {
+            // Fallback on earlier versions
         }
     }
+    
+    // Update camera position based on orbit parameters
+        func updateCameraPosition() {
+            let radius = distance // Distance from the orbit center
+            let cameraPosition = simd_float3(
+                radius * cos(rotationY) * sin(rotationX),
+                radius * sin(rotationY),
+                radius * cos(rotationY) * cos(rotationX)
+            )
+            
+            camera.position = cameraPosition + orbitCenter
+            camera.look(at: orbitCenter, from: camera.position, relativeTo: nil)
+        }
     
     var overlayOptionsView: some View {
         GeometryReader {

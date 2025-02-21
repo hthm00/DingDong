@@ -7,6 +7,9 @@
 
 import SwiftUI
 import SceneKit
+import RealityKit
+import ARKit
+import Combine
 
 /// SceneView for SwiftUI with custom delegate
 struct SceneView: UIViewRepresentable {
@@ -15,9 +18,16 @@ struct SceneView: UIViewRepresentable {
     // True for before furnishing the room
     @Binding var isAutoEnablesDefaultLighting: Bool
     
-    func makeUIView(context: Context) -> SCNView {
-        let view = SCNView()
-        view.scene = sceneLoader.scene
+    @Binding var camera: GestureDrivenCamera
+    @Binding var arView: ARView
+    
+    func makeUIView(context: Context) -> ARView {
+//        let arView = ARView(frame: .zero, cameraMode: .nonAR, automaticallyConfigureSession: false)
+//        arView.renderOptions = .
+//        arView.session = ARSession()
+        arView.environment.background = .color(.blue)
+//        arView.session.delegate = context.coordinator
+//        arView.scene = sceneLoader.scene
         // Debug
 //        view.debugOptions = [
 //            .showWireframe, // Show wireframe
@@ -28,21 +38,87 @@ struct SceneView: UIViewRepresentable {
 //            .showLightExtents // Show field of view cones
 //        ]
 //        view.backgroundColor = .grey
+
+        // .loadModel will lose all children, use load instead
+        let modelEntity = try! Entity.load(named: "Room-example.usdz")
+//        modelEntity.
+        
+        print(modelEntity)
+        if let bedEntity = modelEntity.findEntity(named: "Bed0") {
+            print("Found Bed0")
+//            bedEntity.position = [0, 0, 2]
+        }
+        
+        // Iterate through all child entities of the model
+        print(modelEntity.children.count)
+        for child in modelEntity.children {
+            print(child)
+            if let model = child as? ModelEntity {
+                print(model.name)
+            }
+        }
+        
+        // Create an anchor entity for the model
+        let anchorEntity = AnchorEntity(world: .zero)
+        anchorEntity.addChild(modelEntity)
+        arView.scene.addAnchor(anchorEntity)
+
+        // Create a camera and enable user controls
+//        let camera = PerspectiveCamera()
+//        camera.camera.fieldOfViewInDegrees = 0
+//
+        let cameraAnchor = AnchorEntity(world: [0, 0, 15])
+        cameraAnchor.addChild(camera)
+        arView.scene.addAnchor(cameraAnchor)
+        
+        
+        animateEntityComplex(modelEntity)
+
+
         
         // Important for realistic environment
         sceneLoader.scene?.wantsScreenSpaceReflection = true
         sceneLoader.scene?.rootNode.castsShadow = true
         addSpotLight(to: sceneLoader.scene?.rootNode)
         //        visualizeLights()
-        view.allowsCameraControl = true
-        view.delegate = context.coordinator
-        return view
+//        arView.allowsCameraControl = true
+//        arView.delegate = context.coordinator
+        return arView
     }
     
-    func updateUIView(_ view: SCNView, context: Context) {
-        view.scene = sceneLoader.scene
-        view.autoenablesDefaultLighting = isAutoEnablesDefaultLighting
-        print("Auto lighting: \(view.autoenablesDefaultLighting)")
+    func updateUIView(_ uiView: ARView, context: Context) {
+        
+//        view.scene = sceneLoader.scene
+//        view.autoenablesDefaultLighting = isAutoEnablesDefaultLighting
+//        print("Auto lighting: \(view.autoenablesDefaultLighting)")
+    }
+    
+    func eternalRotation(_ entity: Entity) {
+        let from = Transform(rotation: .init(angle: .pi / 2, axis: [0, 1, 0]))
+
+        let definition = FromToByAnimation(from: from,
+                                       duration: 6,
+                                         timing: .linear,
+                                     bindTarget: .transform,
+                                     repeatMode: .cumulative)
+
+        if let animate = try? AnimationResource.generate(with: definition) {
+            entity.playAnimation(animate)
+        }
+    }
+    
+    func animateEntityComplex(_ entity: Entity) {
+        // Initial transform
+        let startTransform = Transform(scale: [0, 0, 0], rotation: simd_quatf(angle: .pi / 2, axis: SIMD3(x: 0, y: 1, z: 0)), translation: [0, -10, 0])
+        entity.transform = startTransform
+        
+        // Create animations for position, rotation, and scale
+        let translation = SIMD3<Float>(x: 0, y: 0, z: 0)
+        let rotation = simd_quatf(angle: -.pi / 2, axis: SIMD3(x: 0, y: 1, z: 0))
+        let scale = SIMD3<Float>(x: 1.0, y: 1.0, z: 1.0)
+        entity.move(to: Transform(scale: scale, translation: translation), relativeTo: nil, duration: 2)
+        entity.move(to: Transform(rotation: rotation), relativeTo: nil, duration: 4)
+
     }
     
     func addSpotLight(to rootNode: SCNNode?) {
@@ -190,4 +266,3 @@ struct SceneView: UIViewRepresentable {
         }
     }
 }
-

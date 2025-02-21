@@ -55,7 +55,7 @@ struct RoomLoaderView: View {
                 }
             }
             .onAppear {
-                self.sceneView = SceneView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting)
+//                self.sceneView = SceneView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting)
             }
 //            .customNavBar()
         } else {
