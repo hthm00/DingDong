@@ -61,6 +61,8 @@ struct SceneTemplateView: View {
     let orbitCenter = simd_float3(0, 0, 0)  // Set to whatever your target point is
     
     @State var exampleRoomState = ExampleRoomState.raw
+    @State var heading: String = ""
+    @State var bodyText: String = ""
     
     var body: some View {
         if #available(iOS 17.0, *) {
@@ -104,9 +106,17 @@ struct SceneTemplateView: View {
                     }
                 }
                 .onAppear {
-                    withAnimation(.easeIn) {
+                    withAnimation(.easeInOut) {
                         self.roomModelView = RoomModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView)
                         exampleRoomState = .furnish
+                        heading = "Nice Bedroom!"
+                        bodyText = "I'm furnishing the room with matching dimension"
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                        withAnimation(.easeInOut) {
+                            self.heading = "The Room Needs Improvements!!"
+                            self.bodyText = "\u{2022} Bed is blocking the walk way\n\u{2022} No access to sofa"
+                        }
                     }
                 }
                 //            .customNavBar()
@@ -124,122 +134,108 @@ struct SceneTemplateView: View {
     }
     
     // Update camera position based on orbit parameters
-        func updateCameraPosition() {
-            let radius = distance // Distance from the orbit center
-            let cameraPosition = simd_float3(
-                radius * cos(rotationY) * sin(rotationX),
-                radius * sin(rotationY),
-                radius * cos(rotationY) * cos(rotationX)
-            )
-            
-            camera.position = cameraPosition + orbitCenter
-            print("Camera pos: \(camera.position)")
-            print("RotX pos: \(rotationX)")
-            print("RotY pos: \(rotationY)")
-            camera.look(at: orbitCenter, from: camera.position, relativeTo: nil)
-        }
+    func updateCameraPosition() {
+        let radius = distance // Distance from the orbit center
+        let cameraPosition = simd_float3(
+            radius * cos(rotationY) * sin(rotationX),
+            radius * sin(rotationY),
+            radius * cos(rotationY) * cos(rotationX)
+        )
+        
+        camera.position = cameraPosition + orbitCenter
+        print("Camera pos: \(camera.position)")
+        print("RotX pos: \(rotationX)")
+        print("RotY pos: \(rotationY)")
+        camera.look(at: orbitCenter, from: camera.position, relativeTo: nil)
+    }
     
     var overlayOptionsView: some View {
         GeometryReader {
             let size = $0.size
-            VStack(alignment: .center) {
-                H1Text(title: "Example Room")
-                BodyText(text: "Now let's see what I can do.")
+            VStack(alignment: .leading) {
+                H1Text(title: $heading)
+                BodyText(text: $bodyText)
                 Spacer()
-                Button {
-                    isGenerating = true
-                    switch exampleRoomState {
-                    case .raw:
-                        break
-                    case .furnish:
-                        exampleRoomState = ExampleRoomState.changeLayout1
-                        roomModelView?.changeLayout(to: "Room-example_furnished_layout1.usdz")
-                        break
-                    case .changeLayout1:
-                        exampleRoomState = ExampleRoomState.changeLayout2
-                        roomModelView?.changeLayout(to: "Room-example_furnished_layout2.usdz")
-                        break
-                    case .changeLayout2:
-                        exampleRoomState = ExampleRoomState.changeLayout3
-                        roomModelView?.changeLayout(to: "Room-example_furnished_layout3.usdz")
-                        break
-                    case .changeLayout3:
-                        break
-                    }
-                    
-                    Task {
-                        await self.sceneLoader.loadScene(from: urlRoomFurnished, floor: floorResource)
-                        let types: [CapturedRoom.Object.Category] = [.storage, .refrigerator, .stove, .bed, .sink, .washerDryer, .toilet, .bathtub, .oven, .dishwasher, .sofa, .chair, .fireplace, .television, .stairs, .table]
-                        types.forEach {self.sceneLoader.animateAllNodes(ofType:$0)}
-                        self.sceneLoader.animateAllNodes(ofType: .wall, onFloorLevel: false)
-                        
-                        if isGeneratedFirstTime {
-                            self.isAutoEnablesDefaultLighting = false
+                HStack(alignment: .center) {
+                    Button {
+                        withAnimation(.easeInOut) {
+                            isGenerating = true
                         }
-//                        self.sceneView?.addLights()
-                        self.isGenerating = false
-                        self.isGeneratedFirstTime = false
-                    }
-                } label: {
-                    if isGenerating == true {
-                        ProgressView()
-                    } else {
                         switch exampleRoomState {
                         case .raw:
-                            Text("Furnish It")
-                                .fontWeight(.bold)
-                                .frame(width: size.width * 0.4)
-                                .padding(.vertical, 15)
-                                .background {
-                                    Capsule().fill(.secondary)
-                                }
-                                .disabled(isGenerating)
+                            break
                         case .furnish:
-                            Text("Change Layout")
-                                .fontWeight(.bold)
-                                .frame(width: size.width * 0.4)
-                                .padding(.vertical, 15)
-                                .background {
-                                    Capsule().fill(.secondary)
-                                }
-                                .disabled(isGenerating)
+                            exampleRoomState = ExampleRoomState.changeLayout1
+                            roomModelView?.changeLayout(to: "Room-example_furnished_layout1.usdz")
+                            withAnimation(.easeInOut) {
+                                self.heading = "Best Layout"
+                                self.bodyText = "\u{2022} Bed is no longer blocking the walk way\n\u{2022} Easy access to sofa"
+                            }
+                            break
                         case .changeLayout1:
-                            Text("Try Again")
-                                .fontWeight(.bold)
-                                .frame(width: size.width * 0.4)
-                                .padding(.vertical, 15)
-                                .background {
-                                    Capsule().fill(.secondary)
-                                }
-                                .disabled(isGenerating)
+                            exampleRoomState = ExampleRoomState.changeLayout2
+                            roomModelView?.changeLayout(to: "Room-example_furnished_layout2.usdz")
+                            withAnimation(.easeInOut) {
+                                self.heading = "Less Space"
+                                self.bodyText = "\u{2022} Bed is no longer blocking the walk way\n\u{2022} Easy access to sofa\n\u{2022} Tight access to desk"
+                            }
+                            break
                         case .changeLayout2:
-                            Text("Try Again")
-                                .fontWeight(.bold)
-                                .frame(width: size.width * 0.4)
-                                .padding(.vertical, 15)
-                                .background {
-                                    Capsule().fill(.secondary)
-                                }
-                                .disabled(isGenerating)
+                            exampleRoomState = ExampleRoomState.changeLayout3
+                            roomModelView?.changeLayout(to: "Room-example_furnished_layout3.usdz")
+                            withAnimation(.easeInOut) {
+                                self.heading = "Another One"
+                                self.bodyText = "\u{2022} Bed is no longer blocking the walk way\n\u{2022} Consider adding more storage at the corner"
+                            }
+                            break
                         case .changeLayout3:
-                            Text("Now Try Your Own Room!")
-                                .fontWeight(.bold)
-                                .frame(width: size.width * 0.4)
-                                .padding(.vertical, 15)
-                                .background {
-                                    Capsule().fill(.secondary)
-                                }
-                                .disabled(isGenerating)
+                            break
                         }
-                    
+                        
+                        Task {
+                            await self.sceneLoader.loadScene(from: urlRoomFurnished, floor: floorResource)
+                            let types: [CapturedRoom.Object.Category] = [.storage, .refrigerator, .stove, .bed, .sink, .washerDryer, .toilet, .bathtub, .oven, .dishwasher, .sofa, .chair, .fireplace, .television, .stairs, .table]
+                            types.forEach {self.sceneLoader.animateAllNodes(ofType:$0)}
+                            self.sceneLoader.animateAllNodes(ofType: .wall, onFloorLevel: false)
+                            
+                            if isGeneratedFirstTime {
+                                self.isAutoEnablesDefaultLighting = false
+                            }
+                            //                        self.sceneView?.addLights()
+                            withAnimation(.easeInOut) {
+                                self.isGenerating = false
+                                self.isGeneratedFirstTime = false
+                            }
+                        }
+                    } label: {
+                        if isGenerating == true {
+                            ProgressView()
+                                .padding(.vertical, 15)
+                                .padding(10)
+                        } else {
+                            switch exampleRoomState {
+                            case .raw:
+                                EmptyView()
+                            case .furnish:
+                                PrimaryButton(text: "Change Layout", size: size)
+                            case .changeLayout1:
+                                PrimaryButton(text: "Try Again", size: size)
+                            case .changeLayout2:
+                                PrimaryButton(text: "Try Again", size: size)
+                            case .changeLayout3:
+                                PrimaryButton(text: "Now Try Your Own Room!", size: size, willSpan: true)
+                            }
+                            
+                        }
                     }
                 }
             }
-            .frame(maxWidth: .infinity)
+            .disabled(isGenerating)
+//            .frame(maxWidth: .infinity)
             .onAppear(perform: {
-                viewModel.getAllProducts()
+//                viewModel.getAllProducts()
             })
-            .padding(20)
+            .padding(30)
         }
     }
 }
