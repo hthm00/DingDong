@@ -110,7 +110,7 @@ struct SceneTemplateView: View {
                         self.roomModelView = RoomModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView)
                         exampleRoomState = .furnish
                         heading = "Nice Bedroom!"
-                        bodyText = "I'm furnishing the room with matching dimension"
+                        bodyText = "I'm furnishing the room with matching dimension furnitures"
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
                         withAnimation(.easeInOut) {
@@ -157,6 +157,7 @@ struct SceneTemplateView: View {
                 BodyText(text: $bodyText)
                 Spacer()
                 HStack(alignment: .center) {
+                    Spacer()
                     Button {
                         withAnimation(.easeInOut) {
                             isGenerating = true
@@ -169,7 +170,7 @@ struct SceneTemplateView: View {
                             roomModelView?.changeLayout(to: "Room-example_furnished_layout1.usdz")
                             withAnimation(.easeInOut) {
                                 self.heading = "Best Layout"
-                                self.bodyText = "\u{2022} Bed is no longer blocking the walk way\n\u{2022} Easy access to sofa"
+                                self.bodyText = "\u{2022} Bed is not blocking the walkway\n\u{2022} Easy access to sofa and desk\n\u{2022} Most living space"
                             }
                             break
                         case .changeLayout1:
@@ -177,7 +178,7 @@ struct SceneTemplateView: View {
                             roomModelView?.changeLayout(to: "Room-example_furnished_layout2.usdz")
                             withAnimation(.easeInOut) {
                                 self.heading = "Less Space"
-                                self.bodyText = "\u{2022} Bed is no longer blocking the walk way\n\u{2022} Easy access to sofa\n\u{2022} Tight access to desk"
+                                self.bodyText = "\u{2022} Easy access to sofa\n\u{2022} Tight access to desk"
                             }
                             break
                         case .changeLayout2:
@@ -185,7 +186,7 @@ struct SceneTemplateView: View {
                             roomModelView?.changeLayout(to: "Room-example_furnished_layout3.usdz")
                             withAnimation(.easeInOut) {
                                 self.heading = "Another One"
-                                self.bodyText = "\u{2022} Bed is no longer blocking the walk way\n\u{2022} Consider adding more storage at the corner"
+                                self.bodyText = "\u{2022} Consider adding more storage at the corner"
                             }
                             break
                         case .changeLayout3:
@@ -228,6 +229,7 @@ struct SceneTemplateView: View {
                             
                         }
                     }
+                    Spacer()
                 }
             }
             .disabled(isGenerating)
@@ -235,7 +237,7 @@ struct SceneTemplateView: View {
             .onAppear(perform: {
 //                viewModel.getAllProducts()
             })
-            .padding(30)
+            .padding([.leading, .trailing, .top], 30)
         }
     }
 }
