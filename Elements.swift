@@ -26,3 +26,24 @@ struct BackButton: View {
         .padding(.leading)
     }
 }
+
+/// Heading 1
+struct H1Text: View {
+    var title: String
+    var body: some View {
+        Text(self.title)
+            .font(.custom("Merriweather-Black", size: 40))
+            .foregroundStyle(Color("AccentColor"))
+            .fontWeight(.black)
+            .padding(.bottom,5)
+    }
+}
+
+/// Body text
+struct BodyText: View {
+    var text: String
+    var body: some View {
+        Text(text)
+            .font(Font.custom("Cambay-Regular", size: 16))
+    }
+}

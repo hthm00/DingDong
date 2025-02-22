@@ -53,8 +53,8 @@ struct SceneTemplateView: View {
     // Orbit Parameters
     @State private var lastOffset: CGSize = .zero
     @State private var scale: CGFloat = 1.0
-    @State private var rotationX: Float = 0.0  // Horizontal rotation
-    @State private var rotationY: Float = 0.0  // Vertical rotation
+    @State private var rotationX: Float = -0.4966666  // Horizontal rotation
+    @State private var rotationY: Float = 1.1266669  // Vertical rotation
     @State private var distance: Float = 15.0   // Distance from the center (target)
     
     // The point around which the camera will orbit (center of rotation)
@@ -106,6 +106,7 @@ struct SceneTemplateView: View {
                 .onAppear {
                     withAnimation(.easeIn) {
                         self.roomModelView = RoomModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView)
+                        exampleRoomState = .furnish
                     }
                 }
                 //            .customNavBar()
@@ -132,6 +133,9 @@ struct SceneTemplateView: View {
             )
             
             camera.position = cameraPosition + orbitCenter
+            print("Camera pos: \(camera.position)")
+            print("RotX pos: \(rotationX)")
+            print("RotY pos: \(rotationY)")
             camera.look(at: orbitCenter, from: camera.position, relativeTo: nil)
         }
     
@@ -139,22 +143,27 @@ struct SceneTemplateView: View {
         GeometryReader {
             let size = $0.size
             VStack(alignment: .center) {
+                H1Text(title: "Example Room")
+                BodyText(text: "Now let's see what I can do.")
                 Spacer()
                 Button {
                     isGenerating = true
                     switch exampleRoomState {
                     case .raw:
-                        exampleRoomState = ExampleRoomState.furnish
-                        roomModelView?.cleanUpScene()
-                        roomModelView?.loadModel(fileName: "Room-example_furnished.usdz")
                         break
                     case .furnish:
-                        exampleRoomState = ExampleRoomState.changeLayout
+                        exampleRoomState = ExampleRoomState.changeLayout1
                         roomModelView?.changeLayout(to: "Room-example_furnished_layout1.usdz")
                         break
-                    case .changeLayout:
-                        exampleRoomState = ExampleRoomState.changeLayout
-                        roomModelView?.changeLayout(to: "Room-example_furnished_layout1.usdz")
+                    case .changeLayout1:
+                        exampleRoomState = ExampleRoomState.changeLayout2
+                        roomModelView?.changeLayout(to: "Room-example_furnished_layout2.usdz")
+                        break
+                    case .changeLayout2:
+                        exampleRoomState = ExampleRoomState.changeLayout3
+                        roomModelView?.changeLayout(to: "Room-example_furnished_layout3.usdz")
+                        break
+                    case .changeLayout3:
                         break
                     }
                     
@@ -194,7 +203,7 @@ struct SceneTemplateView: View {
                                     Capsule().fill(.secondary)
                                 }
                                 .disabled(isGenerating)
-                        case .changeLayout:
+                        case .changeLayout1:
                             Text("Try Again")
                                 .fontWeight(.bold)
                                 .frame(width: size.width * 0.4)
@@ -203,7 +212,26 @@ struct SceneTemplateView: View {
                                     Capsule().fill(.secondary)
                                 }
                                 .disabled(isGenerating)
+                        case .changeLayout2:
+                            Text("Try Again")
+                                .fontWeight(.bold)
+                                .frame(width: size.width * 0.4)
+                                .padding(.vertical, 15)
+                                .background {
+                                    Capsule().fill(.secondary)
+                                }
+                                .disabled(isGenerating)
+                        case .changeLayout3:
+                            Text("Now Try Your Own Room!")
+                                .fontWeight(.bold)
+                                .frame(width: size.width * 0.4)
+                                .padding(.vertical, 15)
+                                .background {
+                                    Capsule().fill(.secondary)
+                                }
+                                .disabled(isGenerating)
                         }
+                    
                     }
                 }
             }
@@ -219,7 +247,9 @@ struct SceneTemplateView: View {
 enum ExampleRoomState {
     case raw
     case furnish
-    case changeLayout
+    case changeLayout1
+    case changeLayout2
+    case changeLayout3
 }
 
 #Preview {

@@ -39,37 +39,7 @@ struct RoomModelView: UIViewRepresentable {
 //        view.backgroundColor = .grey
 
         // .loadModel will lose all children, use load instead
-        let modelEntity = try! Entity.load(named: "Room-example.usdz")
-//        modelEntity.
-        
-        print(modelEntity)
-        
-        
-        // Iterate through all child entities of the model
-        print(modelEntity.children.count)
-        for child in modelEntity.children {
-            print(child)
-            if let model = child as? ModelEntity {
-                print(model.name)
-            }
-        }
-        
-        // Create an anchor entity for the model
-        let anchorEntity = AnchorEntity(world: .zero)
-        anchorEntity.addChild(modelEntity)
-        arView.scene.addAnchor(anchorEntity)
-
-        // Create a camera and enable user controls
-//        let camera = PerspectiveCamera()
-//        camera.camera.fieldOfViewInDegrees = 0
-//
-        let cameraAnchor = AnchorEntity(world: [0, 0, 15])
-        cameraAnchor.addChild(camera)
-        arView.scene.addAnchor(cameraAnchor)
-        
-        
-        animateEntityComplex(modelEntity)
-
+        loadModel(fileName: "Room-example.usdz")
 
         
         // Important for realistic environment
@@ -102,15 +72,118 @@ struct RoomModelView: UIViewRepresentable {
     /// Load new model into the scene with filename
     func loadModel(fileName: String) {
         let modelEntity = try! Entity.load(named: fileName)
+        let newModelEntity = try! Entity.load(named: "Room-example_furnished.usdz")
+        
         // Create an anchor entity for the model
         let anchorEntity = AnchorEntity(world: .zero)
         anchorEntity.addChild(modelEntity)
         arView.scene.addAnchor(anchorEntity)
-        let cameraAnchor = AnchorEntity(world: [0, 0, 15])
+        let cameraAnchor = AnchorEntity(world: [0, 0, 0])
         cameraAnchor.addChild(camera)
+        camera.position = [-3.0710642, 13.544776, 5.666357]
+        camera.look(at: [0, 0, 0], from: camera.position, relativeTo: nil)
         arView.scene.addAnchor(cameraAnchor)
         // Animate scene
-        animateEntityComplex(modelEntity)
+        animateEntityZoomOut(modelEntity)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            print("Replacing walls")
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall0"), let bedEntity = arView.scene.findEntity(named: "Wall0") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall1"), let bedEntity = arView.scene.findEntity(named: "Wall1") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall2"), let bedEntity = arView.scene.findEntity(named: "Wall2") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall3"), let bedEntity = arView.scene.findEntity(named: "Wall3") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall4"), let bedEntity = arView.scene.findEntity(named: "Wall4") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall5"), let bedEntity = arView.scene.findEntity(named: "Wall5") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall6"), let bedEntity = arView.scene.findEntity(named: "Wall6") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Wall7"), let bedEntity = arView.scene.findEntity(named: "Wall7") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            print("Replacing furniture")
+            if let newBedEntity = newModelEntity.findEntity(named: "Bed0"), let bedEntity = arView.scene.findEntity(named: "Bed0") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Chair0"), let bedEntity = arView.scene.findEntity(named: "Chair0") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Sofa0"), let bedEntity = arView.scene.findEntity(named: "Sofa0") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+            if let newBedEntity = newModelEntity.findEntity(named: "Table0"), let bedEntity = arView.scene.findEntity(named: "Table0") {
+                print("Bed: \(bedEntity.transform)")
+                print("NewBed: \(newModelEntity.transform)")
+                replaceObject(from: bedEntity, to: newBedEntity)
+            }
+        }
+    }
+    
+    func replaceObject(from entity: Entity, to newEntity: Entity) {
+        // Initial transform
+        let entityTransform = entity.transform
+        // Create animations for position, rotation, and scale
+        let scale = SIMD3<Float>(x: 0.0, y: 0.0, z: 0.0)
+        var newEntityTransform = entityTransform
+        newEntityTransform.scale = [0.001, 0.001, 0.001]
+        
+        DispatchQueue.main.async {
+            entity.move(to: newEntityTransform, relativeTo: entity.parent, duration: 2)
+            //        entity.move(to: Transform(rotation: rotation), relativeTo: nil, duration: 4)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if let newEntityAnchor = entity.anchor?.clone(recursive: false) {
+//                    newEntityAnchor.addChild(newEntity)
+                    if let roomEntity = arView.scene.findEntity(named: "Room") {
+                        roomEntity.addChild(newEntity)
+                        // Initial transform
+                        newEntity.transform = entityTransform
+                        newEntity.transform.scale = [0, 0, 0]
+//                        
+                        var newTransform = entityTransform
+                        newTransform.scale = [1, 1, 1]
+                        newEntity.move(to: newTransform, relativeTo: entity.parent, duration: 2)
+                        entity.removeFromParent()
+
+                    }
+                }
+            }
+            
+        }
     }
     
     func changeLayout(to fileName: String) {
@@ -155,18 +228,34 @@ struct RoomModelView: UIViewRepresentable {
         }
     }
     
-    func animateEntityComplex(_ entity: Entity) {
-        // Initial transform
-        let startTransform = Transform(scale: [0, 0, 0], rotation: simd_quatf(angle: .pi / 2, axis: SIMD3(x: 0, y: 1, z: 0)), translation: [0, -10, 0])
-        entity.transform = startTransform
-        
-        // Create animations for position, rotation, and scale
-        let translation = SIMD3<Float>(x: 0, y: 0, z: 0)
-        let rotation = simd_quatf(angle: -.pi / 2, axis: SIMD3(x: 0, y: 1, z: 0))
-        let scale = SIMD3<Float>(x: 1.0, y: 1.0, z: 1.0)
-        entity.move(to: Transform(scale: scale, translation: translation), relativeTo: nil, duration: 2)
-        entity.move(to: Transform(rotation: rotation), relativeTo: nil, duration: 4)
-
+    func animateEntityBottomToTop(_ entity: Entity) {
+        DispatchQueue.main.async {
+            // Initial transform
+            let startTransform = Transform(scale: [0, 0, 0], rotation: simd_quatf(angle: .pi / 2, axis: SIMD3(x: 0, y: 1, z: 0)), translation: [0, -10, 0])
+            entity.transform = startTransform
+            
+            // Create animations for position, rotation, and scale
+            let translation = SIMD3<Float>(x: 0, y: 0, z: 0)
+            let rotation = simd_quatf(angle: -.pi / 2, axis: SIMD3(x: 0, y: 1, z: 0))
+            let scale = SIMD3<Float>(x: 1.0, y: 1.0, z: 1.0)
+            entity.move(to: Transform(scale: scale, translation: translation), relativeTo: nil, duration: 2)
+            entity.move(to: Transform(rotation: rotation), relativeTo: nil, duration: 4)
+        }
+    }
+    
+    func animateEntityZoomOut(_ entity: Entity) {
+        DispatchQueue.main.async {
+            // Initial transform
+            let startTransform = Transform(scale: [100, 100, 100], rotation: simd_quatf(angle: .pi / 2, axis: SIMD3(x: 0, y: 1, z: 0)), translation: [0, -10, 0])
+            entity.transform = startTransform
+            
+            // Create animations for position, rotation, and scale
+            let translation = SIMD3<Float>(x: 0, y: 0, z: 0)
+            let rotation = simd_quatf(angle: -.pi / 2, axis: SIMD3(x: 0, y: 1, z: 0))
+            let scale = SIMD3<Float>(x: 1.0, y: 1.0, z: 1.0)
+            entity.move(to: Transform(scale: scale, translation: translation), relativeTo: nil, duration: 2)
+            entity.move(to: Transform(rotation: rotation), relativeTo: nil, duration: 4)
+        }
     }
     
     func addSpotLight(to rootNode: SCNNode?) {
