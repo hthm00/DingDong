@@ -14,7 +14,7 @@ struct RoomLoaderView: View {
     @State var scene: SCNScene?
     @State var isGeneratedFirstTime = true
     @State var isGenerating = false
-    @State var sceneView: RoomModelView?
+    @State var sceneView: SceneModelView?
     @State var isAutoEnablesDefaultLighting = true
     
     @StateObject var viewModel = ProductViewModel()
@@ -55,7 +55,7 @@ struct RoomLoaderView: View {
                 }
             }
             .onAppear {
-//                self.sceneView = SceneView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting)
+                self.sceneView = SceneModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting)
             }
 //            .customNavBar()
         } else {

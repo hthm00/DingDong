@@ -129,7 +129,7 @@ struct SceneTemplateView: View {
                     }
             }
         } else {
-            Text("You need ios 17.0 or later to run this scene!")
+            Text("Need ios 17 and above to run this scene")
         }
     }
     
@@ -224,7 +224,9 @@ struct SceneTemplateView: View {
                             case .changeLayout2:
                                 PrimaryButton(text: "Try Again", size: size)
                             case .changeLayout3:
-                                PrimaryButton(text: "Now Try Your Own Room!", size: size, willSpan: true)
+                                NavigationLink(destination: HomeView(isActive: false)) {
+                                    PrimaryButton(text: "Now Try Your Own Room!", size: size, willSpan: true)
+                                }
                             }
                             
                         }
