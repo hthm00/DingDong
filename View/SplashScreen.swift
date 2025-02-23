@@ -7,25 +7,56 @@
 
 import SwiftUI
 import AVFoundation
-import DotLottie
+/// This package cause a crash when reopening the app after app installed
+//import DotLottie
 
 struct SplashScreenView: View {
     @State private var player: AVAudioPlayer?
     @Binding var isShowingHome: Bool
     
+    @State private var count = 0
+    @State private var isScaling = false
+    
     var body: some View {
         ZStack {
-            DotLottieAnimation(fileName: "bell-ding-dong", config: AnimationConfig(autoplay: true, loop: true)).view()
-                .frame(width: 300)
-                .onAppear {
-                    playDingDongSound()
-                    // Transition to main content after splash screen
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation(.easeInOut) {
-                            isShowingHome = true
+            /// Does not crash first run
+//            DotLottieAnimation(fileName: "bell-ding-dong", config: AnimationConfig(autoplay: true, loop: true)).view()
+//                .frame(width: 300)
+//
+            if #available(iOS 17.0, *) {
+                Image(systemName: "bell.and.waves.left.and.right.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 150, height: 150)
+                    .foregroundStyle(Color("AccentColor"))
+                    .symbolEffect(.bounce, value: count)
+                    .onAppear() {
+                        count += 1
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            count += 1
                         }
                     }
+            } else {
+                Image(systemName: "bell.and.waves.left.and.right.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 150, height: 150)
+                    .foregroundStyle(Color("AccentColor"))
+                    .scaleEffect(isScaling ? 1.0 : 1.5)
+                    .animation(.easeInOut(duration: 0.5).repeatCount(3, autoreverses: true), value: isScaling)
+                    .onAppear {
+                        isScaling = true
+                    }
+            }
+        }
+        .onAppear {
+            playDingDongSound()
+            // Transition to main content after splash screen
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation(.easeInOut) {
+                    isShowingHome = true
                 }
+            }
         }
     }
     

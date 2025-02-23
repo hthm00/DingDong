@@ -9,7 +9,8 @@ import SwiftUI
 import FirebaseStorage
 import RealityKit
 import RoomPlan
-import DotLottie
+/// This package cause a crash when reopening the app after app installed
+//import DotLottie
 
 struct SceneTemplateView: View {
     @StateObject var sceneLoader = SceneLoader()
@@ -52,12 +53,12 @@ struct SceneTemplateView: View {
     //        roughness: UIImage(named: "PlasterPlain001_ROUGHNESS_1K_METALNESS.png"))
     
     // Example rooms urls
-    let roomFurnishedURL =  URL(string: "h")
+//    let roomFurnishedURL =  URL(string: "h")
     let roomFurnishedLayout1URL = URL(string: "")
     let roomFurnishedLayout2URL = URL(string: "")
     let roomFurnishedLayout3URL = URL(string: "")
-//    // Example rooms urls
-//    let roomFurnishedURL =  URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished.usdz?alt=media&token=441eb02a-8d09-423a-bdd0-141c792becdd")
+    // Example rooms urls
+    let roomFurnishedURL =  URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished.usdz?alt=media&token=441eb02a-8d09-423a-bdd0-141c792becdd")
 //    let roomFurnishedLayout1URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout1.usdz?alt=media&token=99312ba2-f654-4141-acde-8e4dc69dfa4f")
 //    let roomFurnishedLayout2URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout2.usdz?alt=media&token=de513235-a107-4ac7-8694-b5e2bfb48150")
 //    let roomFurnishedLayout3URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout3.usdz?alt=media&token=10fdc6d4-62fc-4598-8575-f786769c9fa0")
@@ -118,27 +119,24 @@ struct SceneTemplateView: View {
                         )
                     VStack {
                         if dragGesture {
-                            DotLottieAnimation(fileName: "drag-gesture", config: AnimationConfig(autoplay: true, loop: true)).view()
-                                .frame(width: 500)
+                            GifImageView("drag-gesture")
+                                .frame(width: 100, height: 100)
                                 .onAppear(perform: {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                                         withAnimation(.easeInOut) {
                                             zoomGesture = true
                                             dragGesture = false
                                         }
                                     }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 12) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
                                         withAnimation(.easeInOut) {
                                             zoomGesture = false
                                         }
                                     }
                                 })
                         }
-                        if zoomGesture {
-                            DotLottieAnimation(fileName: "zoom-gesture", config: AnimationConfig(autoplay: true, loop: true)).view()
-                                .frame(width: 500)
-                        }
                     }
+                    .clipShape(Circle())
                     
                     if showOverlayOptions {
                         overlayOptionsView
@@ -147,7 +145,6 @@ struct SceneTemplateView: View {
                 .onAppear {
                     withAnimation(.easeInOut) {
                         self.isGenerating = true
-                        self.dragGesture = true
                     }
                     if let roomURL = roomFurnishedURL {
                         viewModel.downloadModelFile(from: roomURL) { result in
@@ -165,6 +162,7 @@ struct SceneTemplateView: View {
                                             self.heading = "The Room Needs Improvements!!"
                                             self.bodyText = "\u{2022} Bed is blocking the walk way\n\u{2022} No access to sofa"
                                             self.isGenerating = false
+                                            self.dragGesture = true
                                         }
                                     }
                                 case .failure(let error):

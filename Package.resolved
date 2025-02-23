@@ -19,15 +19,6 @@
       }
     },
     {
-      "identity" : "dotlottie-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LottieFiles/dotlottie-ios",
-      "state" : {
-        "branch" : "main",
-        "revision" : "5882d81ccb677e2da0175fc9c97980bb61af3eb9"
-      }
-    },
-    {
       "identity" : "firebase-ios-sdk",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/firebase-ios-sdk",
