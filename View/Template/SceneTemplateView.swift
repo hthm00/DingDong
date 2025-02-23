@@ -50,6 +50,12 @@ struct SceneTemplateView: View {
     //        metalness: UIImage(named: "PlasterPlain001_METALNESS_1K_METALNESS.png"),
     //        roughness: UIImage(named: "PlasterPlain001_ROUGHNESS_1K_METALNESS.png"))
     
+    // Example rooms urls
+    let roomFurnishedURL =  URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished.usdz?alt=media&token=581e6475-ad94-4062-acf8-ba8925b963e0")
+    let roomFurnishedLayout1URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished_layout1.usdz?alt=media&token=15b8f19b-b330-4fc3-b168-37aaa3f59e3d")
+    let roomFurnishedLayout2URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished_layout2.usdz?alt=media&token=37dddd5f-c0a5-40fa-bba6-cdbef3210f78")
+    let roomFurnishedLayout3URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished_layout3.usdz?alt=media&token=6a198898-64dc-4c8c-b9bf-09305bc22ab1")
+    
     // Orbit Parameters
     @State private var lastOffset: CGSize = .zero
     @State private var scale: CGFloat = 1.0
@@ -107,15 +113,30 @@ struct SceneTemplateView: View {
                 }
                 .onAppear {
                     withAnimation(.easeInOut) {
-                        self.roomModelView = RoomModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView)
-                        exampleRoomState = .furnish
-                        heading = "Nice Bedroom!"
-                        bodyText = "I'm furnishing the room with matching dimension furnitures..."
+                        self.isGenerating = true
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
-                        withAnimation(.easeInOut) {
-                            self.heading = "The Room Needs Improvements!!"
-                            self.bodyText = "\u{2022} Bed is blocking the walk way\n\u{2022} No access to sofa"
+                    if let roomURL = roomFurnishedURL {
+                        viewModel.downloadModelFile(from: roomURL) { result in
+                            DispatchQueue.main.async {
+                                switch result {
+                                case .success(let localFileUrl):
+                                    withAnimation(.easeInOut) {
+                                        exampleRoomState = .furnish
+                                        heading = "Nice Bedroom!"
+                                        bodyText = "I'm furnishing the room with matching dimension furnitures..."
+                                        self.roomModelView = RoomModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView, roomFurnishedURL: localFileUrl)
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                                        withAnimation(.easeInOut) {
+                                            self.heading = "The Room Needs Improvements!!"
+                                            self.bodyText = "\u{2022} Bed is blocking the walk way\n\u{2022} No access to sofa"
+                                            self.isGenerating = false
+                                        }
+                                    }
+                                case .failure(let error):
+                                    print("Error downloading file: \(error)")
+                                }
+                            }
                         }
                     }
                 }
@@ -163,52 +184,7 @@ struct SceneTemplateView: View {
                         withAnimation(.easeInOut) {
                             isGenerating = true
                         }
-                        switch exampleRoomState {
-                        case .raw:
-                            break
-                        case .furnish:
-                            exampleRoomState = ExampleRoomState.changeLayout1
-                            roomModelView?.changeLayout(to: "Room-example_furnished_layout1.usdz")
-                            withAnimation(.easeInOut) {
-                                self.heading = "Best Layout"
-                                self.bodyText = "\u{2022} Bed is not blocking the walkway\n\u{2022} Easy access to sofa and desk\n\u{2022} Most living space"
-                            }
-                            break
-                        case .changeLayout1:
-                            exampleRoomState = ExampleRoomState.changeLayout2
-                            roomModelView?.changeLayout(to: "Room-example_furnished_layout2.usdz")
-                            withAnimation(.easeInOut) {
-                                self.heading = "Less Space"
-                                self.bodyText = "\u{2022} Easy access to sofa\n\u{2022} Tight access to desk"
-                            }
-                            break
-                        case .changeLayout2:
-                            exampleRoomState = ExampleRoomState.changeLayout3
-                            roomModelView?.changeLayout(to: "Room-example_furnished_layout3.usdz")
-                            withAnimation(.easeInOut) {
-                                self.heading = "Another One"
-                                self.bodyText = "\u{2022} Consider adding more storage at the corner"
-                            }
-                            break
-                        case .changeLayout3:
-                            break
-                        }
-                        
-                        Task {
-                            await self.sceneLoader.loadScene(from: urlRoomFurnished, floor: floorResource)
-                            let types: [CapturedRoom.Object.Category] = [.storage, .refrigerator, .stove, .bed, .sink, .washerDryer, .toilet, .bathtub, .oven, .dishwasher, .sofa, .chair, .fireplace, .television, .stairs, .table]
-                            types.forEach {self.sceneLoader.animateAllNodes(ofType:$0)}
-                            self.sceneLoader.animateAllNodes(ofType: .wall, onFloorLevel: false)
-                            
-                            if isGeneratedFirstTime {
-                                self.isAutoEnablesDefaultLighting = false
-                            }
-                            //                        self.sceneView?.addLights()
-                            withAnimation(.easeInOut) {
-                                self.isGenerating = false
-                                self.isGeneratedFirstTime = false
-                            }
-                        }
+                        updateRoomState(for: exampleRoomState)
                     } label: {
                         if isGenerating == true {
                             ProgressView()
@@ -241,6 +217,42 @@ struct SceneTemplateView: View {
 //                viewModel.getAllProducts()
             })
             .padding([.leading, .trailing, .top], 30)
+        }
+    }
+    
+    func updateRoomState(for state: ExampleRoomState) {
+        switch state {
+        case .raw:
+            break
+        case .furnish:
+            handleRoomStateChange(nextState: .changeLayout1, url: roomFurnishedLayout1URL, heading: "Best Layout", bodyText: "\u{2022} Bed is not blocking the walkway\n\u{2022} Easy access to sofa and desk\n\u{2022} Most living space")
+        case .changeLayout1:
+            handleRoomStateChange(nextState: .changeLayout2, url: roomFurnishedLayout2URL, heading: "Less Space", bodyText: "\u{2022} Easy access to sofa\n\u{2022} Tight access to desk")
+        case .changeLayout2:
+            handleRoomStateChange(nextState: .changeLayout3, url: roomFurnishedLayout3URL, heading: "Another One", bodyText: "\u{2022} Consider adding more storage at the corner")
+        case .changeLayout3:
+            break
+        }
+    }
+
+    private func handleRoomStateChange(nextState: ExampleRoomState, url: URL?, heading: String, bodyText: String) {
+        exampleRoomState = nextState
+        guard let roomURL = url else { return }
+        
+        viewModel.downloadModelFile(from: roomURL) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let localFileUrl):
+                    roomModelView?.changeLayout(url: localFileUrl)
+                    withAnimation(.easeInOut) {
+                        self.heading = heading
+                        self.bodyText = bodyText
+                    }
+                case .failure(let error):
+                    print("Error downloading file: \(error)")
+                }
+                self.isGenerating = false
+            }
         }
     }
 }

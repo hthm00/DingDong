@@ -165,7 +165,7 @@ struct RoomLoaderView: View {
                     if isGenerating == true {
                         ProgressView()
                     } else {
-                        Text(isGeneratedFirstTime ? "Replace" : "Try Again")
+                        Text(isGeneratedFirstTime ? "Furnish" : "Try Again")
                             .fontWeight(.bold)
                             .frame(width: size.width * 0.4)
                             .padding(.vertical, 15)

@@ -20,6 +20,9 @@ struct RoomModelView: UIViewRepresentable {
     @Binding var camera: GestureDrivenCamera
     @Binding var arView: ARView
     
+    var roomFurnishedURL: URL?
+    let roomExampleFileName = "Room-example.usdz"
+    
     func makeUIView(context: Context) -> ARView {
 //        let arView = ARView(frame: .zero, cameraMode: .nonAR, automaticallyConfigureSession: false)
 //        arView.renderOptions = .
@@ -39,7 +42,7 @@ struct RoomModelView: UIViewRepresentable {
 //        view.backgroundColor = .grey
 
         // .loadModel will lose all children, use load instead
-        loadModel(fileName: "Room-example.usdz")
+        loadModel(fileName: roomExampleFileName, to: roomFurnishedURL)
 
         
         // Important for realistic environment
@@ -69,89 +72,53 @@ struct RoomModelView: UIViewRepresentable {
         }
     }
     
-    /// Load new model into the scene with filename
-    func loadModel(fileName: String) {
-        let modelEntity = try! Entity.load(named: fileName)
-        let newModelEntity = try! Entity.load(named: "Room-example_furnished.usdz")
-        
-        // Create an anchor entity for the model
+    func loadModel(fileName: String, to fileURL: URL?) {
+        guard let fileURL = fileURL else { return }
+        do {
+            let modelEntity = try Entity.load(named: fileName)
+            let newModelEntity = try Entity.load(contentsOf: fileURL)
+            
+            setupScene(with: modelEntity)
+            setupCamera()
+            animateEntityZoomOut(modelEntity)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                replaceEntities(in: arView, from: newModelEntity, entityNames: (0...7).map { "Wall\($0)" })
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                replaceEntities(in: arView, from: newModelEntity, entityNames: ["Bed0", "Chair0", "Sofa0", "Table0"])
+            }
+        } catch {
+            print("Error loading model: \(error.localizedDescription)")
+        }
+    }
+
+    private func setupScene(with modelEntity: Entity) {
         let anchorEntity = AnchorEntity(world: .zero)
         anchorEntity.addChild(modelEntity)
         arView.scene.addAnchor(anchorEntity)
+    }
+
+    private func setupCamera() {
         let cameraAnchor = AnchorEntity(world: [0, 0, 0])
         cameraAnchor.addChild(camera)
         camera.position = [-3.0710642, 13.544776, 5.666357]
         camera.look(at: [0, 0, 0], from: camera.position, relativeTo: nil)
         arView.scene.addAnchor(cameraAnchor)
-        // Animate scene
-        animateEntityZoomOut(modelEntity)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-            print("Replacing walls")
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall0"), let bedEntity = arView.scene.findEntity(named: "Wall0") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall1"), let bedEntity = arView.scene.findEntity(named: "Wall1") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall2"), let bedEntity = arView.scene.findEntity(named: "Wall2") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall3"), let bedEntity = arView.scene.findEntity(named: "Wall3") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall4"), let bedEntity = arView.scene.findEntity(named: "Wall4") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall5"), let bedEntity = arView.scene.findEntity(named: "Wall5") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall6"), let bedEntity = arView.scene.findEntity(named: "Wall6") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Wall7"), let bedEntity = arView.scene.findEntity(named: "Wall7") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            print("Replacing furniture")
-            if let newBedEntity = newModelEntity.findEntity(named: "Bed0"), let bedEntity = arView.scene.findEntity(named: "Bed0") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Chair0"), let bedEntity = arView.scene.findEntity(named: "Chair0") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Sofa0"), let bedEntity = arView.scene.findEntity(named: "Sofa0") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
-            }
-            if let newBedEntity = newModelEntity.findEntity(named: "Table0"), let bedEntity = arView.scene.findEntity(named: "Table0") {
-                print("Bed: \(bedEntity.transform)")
-                print("NewBed: \(newModelEntity.transform)")
-                replaceObject(from: bedEntity, to: newBedEntity)
+    }
+
+    private func replaceEntities(in arView: ARView, from newModelEntity: Entity, entityNames: [String]) {
+        for name in entityNames {
+            if let newEntity = newModelEntity.findEntity(named: name),
+               let existingEntity = arView.scene.findEntity(named: name) {
+                print("\(name): \(existingEntity.transform)")
+                print("New\(name): \(newEntity.transform)")
+                replaceObject(from: existingEntity, to: newEntity)
             }
         }
     }
+
     
     func replaceObject(from entity: Entity, to newEntity: Entity) {
         // Initial transform
@@ -186,33 +153,50 @@ struct RoomModelView: UIViewRepresentable {
         }
     }
     
+    /// Change layout with local file url
+    func changeLayout(url fileURL: URL?) {
+        guard let fileURL = fileURL else { return }
+        loadAndApplyLayout(from: fileURL)
+    }
+
+    /// Change layout with local file name
     func changeLayout(to fileName: String) {
-        let modelEntity = try! Entity.load(named: fileName)
-        if let newBedEntity = modelEntity.findEntity(named: "Bed0"), let bedEntity = arView.scene.findEntity(named: "Bed0") {
-            print("Bed: \(bedEntity.transform)")
-            print("NewBed: \(newBedEntity.transform)")
-//            bedEntity.transform = newBedEntity.transform
-            bedEntity.move(to: newBedEntity.transform, relativeTo: bedEntity.parent, duration: 2)
-        }
-        if let newBedEntity = modelEntity.findEntity(named: "Sofa0"), let bedEntity = arView.scene.findEntity(named: "Sofa0") {
-            print("Sofa: \(bedEntity.transform)")
-            print("NewSofa: \(newBedEntity.transform)")
-//            bedEntity.transform = newBedEntity.transform
-            bedEntity.move(to: newBedEntity.transform, relativeTo: bedEntity.parent, duration: 2)
-        }
-        if let newBedEntity = modelEntity.findEntity(named: "Table0"), let bedEntity = arView.scene.findEntity(named: "Table0") {
-            print("Table0: \(bedEntity.transform)")
-            print("NewTable0: \(newBedEntity.transform)")
-//            bedEntity.transform = newBedEntity.transform
-            bedEntity.move(to: newBedEntity.transform, relativeTo: bedEntity.parent, duration: 2)
-        }
-        if let newBedEntity = modelEntity.findEntity(named: "Chair0"), let bedEntity = arView.scene.findEntity(named: "Chair0") {
-            print("Chair0: \(bedEntity.transform)")
-            print("NewChair0: \(newBedEntity.transform)")
-//            bedEntity.transform = newBedEntity.transform
-            bedEntity.move(to: newBedEntity.transform, relativeTo: bedEntity.parent, duration: 2)
+        loadAndApplyLayout(named: fileName)
+    }
+
+    /// Load and apply from local file url
+    private func loadAndApplyLayout(from fileURL: URL) {
+        do {
+            let modelEntity = try Entity.load(contentsOf: fileURL)
+            applyLayoutChanges(using: modelEntity)
+        } catch {
+            print("Error loading model: \(error.localizedDescription)")
         }
     }
+
+    /// Load and apply from local file name
+    private func loadAndApplyLayout(named fileName: String) {
+        do {
+            let modelEntity = try Entity.load(named: fileName)
+            applyLayoutChanges(using: modelEntity)
+        } catch {
+            print("Error loading model: \(error.localizedDescription)")
+        }
+    }
+
+    private func applyLayoutChanges(using modelEntity: Entity) {
+        let entityNames = ["Bed0", "Sofa0", "Table0", "Chair0"]
+        
+        for name in entityNames {
+            if let newEntity = modelEntity.findEntity(named: name),
+               let existingEntity = arView.scene.findEntity(named: name) {
+                print("\(name): \(existingEntity.transform)")
+                print("New\(name): \(newEntity.transform)")
+                existingEntity.move(to: newEntity.transform, relativeTo: existingEntity.parent, duration: 2)
+            }
+        }
+    }
+    
     
     func eternalRotation(_ entity: Entity) {
         let from = Transform(rotation: .init(angle: .pi / 2, axis: [0, 1, 0]))
