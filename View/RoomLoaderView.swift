@@ -37,11 +37,7 @@ struct RoomLoaderView: View {
     
     let floorResource = MaterialResource(diffuse: UIImage(named: "concrete-floor.jpg"))
     let wallResource = MaterialResource(
-        diffuse: UIImage(named: "CeramicPlainWhite001_COL_2K.jpg"),
-        normal: UIImage(named: "CeramicPlainWhite001_NRM_2K.png"),
-        gloss: UIImage(named: "CeramicPlainWhite001_GLOSS_2K.jpg"),
-        reflection: UIImage(named: "CeramicPlainWhite001_REFL_2K.jpg")
-    )
+        diffuse: UIImage(named: "concrete.jpeg"))
 //        metalness: UIImage(named: "PlasterPlain001_METALNESS_1K_METALNESS.png"),
 //        roughness: UIImage(named: "PlasterPlain001_ROUGHNESS_1K_METALNESS.png"))
     
@@ -79,8 +75,9 @@ struct RoomLoaderView: View {
                         if isGeneratedFirstTime {
                             sceneView?.addLights()
                             self.isAutoEnablesDefaultLighting = false
+                            sceneView?.sceneLoader.addFloor(infinity: true, from: floorResource)
                         }
-                        sceneView?.sceneLoader.addFloor(infinity: true, from: floorResource)
+                        
                         //                        sceneView?.sceneLoader.addCeiling()
                         sceneLoader.styleWalls(with: wallResource)
                         // get local file URL

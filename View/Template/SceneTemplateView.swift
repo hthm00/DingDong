@@ -110,7 +110,7 @@ struct SceneTemplateView: View {
                         self.roomModelView = RoomModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView)
                         exampleRoomState = .furnish
                         heading = "Nice Bedroom!"
-                        bodyText = "I'm furnishing the room with matching dimension furnitures"
+                        bodyText = "I'm furnishing the room with matching dimension furnitures..."
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
                         withAnimation(.easeInOut) {
@@ -119,6 +119,7 @@ struct SceneTemplateView: View {
                         }
                     }
                 }
+                .navigationBarBackButtonHidden(true)
                 //            .customNavBar()
             } else {
                 ProgressView()
@@ -224,7 +225,7 @@ struct SceneTemplateView: View {
                             case .changeLayout2:
                                 PrimaryButton(text: "Try Again", size: size)
                             case .changeLayout3:
-                                NavigationLink(destination: HomeView(isActive: false)) {
+                                NavigationLink(destination: ScanRoomView()) {
                                     PrimaryButton(text: "Now Try Your Own Room!", size: size, willSpan: true)
                                 }
                             }

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct WelcomeScreen: View {
     @Binding var intro: PageIntro
-    @Binding var isActive: Bool
     var size: CGSize
     
     //Animation Properties
@@ -76,7 +75,7 @@ struct WelcomeScreen: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.bottom, 30)
                                 } else {
-                                    NavigationLink(destination: ScanRoomView(isActive: $isActive)) {
+                                    NavigationLink(destination: ScanRoomView()) {
                                         Text("Continue")
                                             .fontWeight(.bold)
                                             .frame(width: size.width * 0.4)

@@ -35,9 +35,9 @@ class SceneLoader: ObservableObject {
             // Access the root node of the scene
             let rootNode = scene.rootNode
             
-            if let floorResource = floorResource {
-                self.addFloor(infinity: true, from: floorResource)
-            }
+//            if let floorResource = floorResource {
+//                self.addFloor(infinity: true, from: floorResource)
+//            }
             
             self.groundLevel = self.findLowestYCoordinate(in: rootNode)
             
