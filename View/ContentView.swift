@@ -4,6 +4,8 @@ import FirebaseCore
 
 
 struct ContentView: View {
+    @State var isShowingHome: Bool = false
+    
     init() {
         registerCustomFont(name: "Merriweather-Black")
         registerCustomFont(name: "Cambay-Regular")
@@ -11,10 +13,12 @@ struct ContentView: View {
     }
     
     var body: some View {
-        
+        if isShowingHome {
             HomeView(isActive: false)
                 .backgroundStyle(.white)
-//        }
+        } else {
+            SplashScreenView(isShowingHome: $isShowingHome)
+        }
     }
     
     func registerCustomFont(name: String) {
