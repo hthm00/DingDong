@@ -9,6 +9,7 @@ import SwiftUI
 import FirebaseStorage
 import RealityKit
 import RoomPlan
+import DotLottie
 
 struct SceneTemplateView: View {
     @StateObject var sceneLoader = SceneLoader()
@@ -51,10 +52,15 @@ struct SceneTemplateView: View {
     //        roughness: UIImage(named: "PlasterPlain001_ROUGHNESS_1K_METALNESS.png"))
     
     // Example rooms urls
-    let roomFurnishedURL =  URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished.usdz?alt=media&token=581e6475-ad94-4062-acf8-ba8925b963e0")
-    let roomFurnishedLayout1URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished_layout1.usdz?alt=media&token=15b8f19b-b330-4fc3-b168-37aaa3f59e3d")
-    let roomFurnishedLayout2URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished_layout2.usdz?alt=media&token=37dddd5f-c0a5-40fa-bba6-cdbef3210f78")
-    let roomFurnishedLayout3URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/designscape-5d27c.appspot.com/o/usdz_files%2Frooms%2FRoom-example_furnished_layout3.usdz?alt=media&token=6a198898-64dc-4c8c-b9bf-09305bc22ab1")
+    let roomFurnishedURL =  URL(string: "h")
+    let roomFurnishedLayout1URL = URL(string: "")
+    let roomFurnishedLayout2URL = URL(string: "")
+    let roomFurnishedLayout3URL = URL(string: "")
+//    // Example rooms urls
+//    let roomFurnishedURL =  URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished.usdz?alt=media&token=441eb02a-8d09-423a-bdd0-141c792becdd")
+//    let roomFurnishedLayout1URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout1.usdz?alt=media&token=99312ba2-f654-4141-acde-8e4dc69dfa4f")
+//    let roomFurnishedLayout2URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout2.usdz?alt=media&token=de513235-a107-4ac7-8694-b5e2bfb48150")
+//    let roomFurnishedLayout3URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout3.usdz?alt=media&token=10fdc6d4-62fc-4598-8575-f786769c9fa0")
     
     // Orbit Parameters
     @State private var lastOffset: CGSize = .zero
@@ -69,6 +75,9 @@ struct SceneTemplateView: View {
     @State var exampleRoomState = ExampleRoomState.raw
     @State var heading: String = ""
     @State var bodyText: String = ""
+    
+    @State var zoomGesture = false
+    @State var dragGesture = false
     
     var body: some View {
         if #available(iOS 17.0, *) {
@@ -107,6 +116,30 @@ struct SceneTemplateView: View {
                                     scale = 1.0
                                 }
                         )
+                    VStack {
+                        if dragGesture {
+                            DotLottieAnimation(fileName: "drag-gesture", config: AnimationConfig(autoplay: true, loop: true)).view()
+                                .frame(width: 500)
+                                .onAppear(perform: {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                                        withAnimation(.easeInOut) {
+                                            zoomGesture = true
+                                            dragGesture = false
+                                        }
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 12) {
+                                        withAnimation(.easeInOut) {
+                                            zoomGesture = false
+                                        }
+                                    }
+                                })
+                        }
+                        if zoomGesture {
+                            DotLottieAnimation(fileName: "zoom-gesture", config: AnimationConfig(autoplay: true, loop: true)).view()
+                                .frame(width: 500)
+                        }
+                    }
+                    
                     if showOverlayOptions {
                         overlayOptionsView
                     }
@@ -114,6 +147,7 @@ struct SceneTemplateView: View {
                 .onAppear {
                     withAnimation(.easeInOut) {
                         self.isGenerating = true
+                        self.dragGesture = true
                     }
                     if let roomURL = roomFurnishedURL {
                         viewModel.downloadModelFile(from: roomURL) { result in
@@ -269,6 +303,6 @@ enum ExampleRoomState {
     //    NavigationStack {
     //        RoomLoaderView(fileRef: DataController.shared.storage.reference(withPath: "/usdz_files/33i3YtIe6TTzBx7uElHrNdbSq1z1/Room1.usdz"))
     //    }
-    ContentView()
+    SceneTemplateView()
 }
 

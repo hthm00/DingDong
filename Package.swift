@@ -38,7 +38,8 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/firebase/firebase-ios-sdk", "11.8.1"..<"12.0.0")
+        .package(url: "https://github.com/firebase/firebase-ios-sdk", "11.8.1"..<"12.0.0"),
+        .package(url: "https://github.com/LottieFiles/dotlottie-ios", .branch("main"))
     ],
     targets: [
         .executableTarget(
@@ -67,7 +68,8 @@ let package = Package(
                 .product(name: "FirebaseRemoteConfig", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseStorage", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseStorageCombine-Community", package: "firebase-ios-sdk"),
-                .product(name: "FirebaseVertexAI", package: "firebase-ios-sdk")
+                .product(name: "FirebaseVertexAI", package: "firebase-ios-sdk"),
+                .product(name: "DotLottie", package: "dotlottie-ios")
             ],
             path: ".",
             resources: [

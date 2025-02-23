@@ -66,7 +66,7 @@ struct IntroView: View {
                 /// Video player
                 Rectangle()
                     .foregroundColor(.clear)
-                    .background(
+                    .background (
                         VideoPlayer(player: player)
                             .aspectRatio(5/2, contentMode: .fill)
                             .onAppear {
@@ -78,6 +78,21 @@ struct IntroView: View {
                                 }
                             }
                     )
+                    .overlay {
+                        if isVideoCompleted {
+                            LinearGradient(colors: [
+                                .clear,
+                                .clear,
+                                .clear,
+                                .clear,
+                                .clear,
+                                .white.opacity(0.1),
+                                .white.opacity(0.5),
+                                .white.opacity(0.9),
+                                .white.opacity(1),
+                            ], startPoint: .top, endPoint: .bottom)
+                        }
+                    }
                 if isVideoCompleted {
                     /// Next button to next view
                     VStack(alignment: .trailing) {
