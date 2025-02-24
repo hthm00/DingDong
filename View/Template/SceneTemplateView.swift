@@ -77,8 +77,13 @@ struct SceneTemplateView: View {
     @State var heading: String = ""
     @State var bodyText: String = ""
     
+    /// Instructional gif
     @State var zoomGesture = false
     @State var dragGesture = false
+    
+    /// Symbols animating
+    @State private var count = 0
+    @State private var isScaling = false
     
     var body: some View {
         if #available(iOS 17.0, *) {
@@ -152,7 +157,6 @@ struct SceneTemplateView: View {
                                 switch result {
                                 case .success(let localFileUrl):
                                     withAnimation(.easeInOut) {
-                                        exampleRoomState = .furnish
                                         heading = "Nice Bedroom!"
                                         bodyText = "I'm furnishing the room with matching dimension furnitures..."
                                         self.roomModelView = RoomModelView(sceneLoader: sceneLoader, isAutoEnablesDefaultLighting: $isAutoEnablesDefaultLighting, camera: $camera, arView: $arView, roomFurnishedURL: localFileUrl)
@@ -163,6 +167,7 @@ struct SceneTemplateView: View {
                                             self.bodyText = "\u{2022} Bed is blocking the walk way\n\u{2022} No access to sofa"
                                             self.isGenerating = false
                                             self.dragGesture = true
+                                            exampleRoomState = .furnish
                                         }
                                     }
                                 case .failure(let error):
@@ -206,10 +211,42 @@ struct SceneTemplateView: View {
     var overlayOptionsView: some View {
         GeometryReader {
             let size = $0.size
-            VStack(alignment: .leading) {
+            VStack(alignment: .center) {
+                if exampleRoomState == .furnish {
+                    if #available(iOS 17.0, *) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(Color("AccentColor"), Color("SecondaryColor"))
+                            .symbolEffect(.bounce, value: count)
+                            .onAppear() {
+                                count += 1
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                    count += 1
+                                }
+                            }
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(Color("AccentColor"), Color("SecondaryColor"))
+                            .scaleEffect(isScaling ? 1.0 : 1.5)
+                            .animation(.easeInOut(duration: 0.5).repeatCount(3, autoreverses: true), value: isScaling)
+                            .onAppear {
+                                isScaling = true
+                            }
+                    }
+                }
+                
                 H1Text(title: $heading)
-                BodyText(text: $bodyText)
+                    .multilineTextAlignment(.center)
                 Spacer()
+                BodyText(text: $bodyText)
+                    .multilineTextAlignment(.center)
                 HStack(alignment: .center) {
                     Spacer()
                     Button {

@@ -44,6 +44,7 @@ struct BodyText: View {
     @Binding var text: String
     var body: some View {
         Text(text)
+            .foregroundStyle(Color("BlueColor"))
             .font(Font.custom("Cambay-Regular", size: 16))
     }
 }

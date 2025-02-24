@@ -28,7 +28,8 @@ struct SplashScreenView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 150, height: 150)
-                    .foregroundStyle(Color("AccentColor"))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(Color("AccentColor"), Color("SecondaryColor"))
                     .symbolEffect(.bounce, value: count)
                     .onAppear() {
                         count += 1
@@ -41,7 +42,8 @@ struct SplashScreenView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 150, height: 150)
-                    .foregroundStyle(Color("AccentColor"))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(Color("AccentColor"), Color("SecondaryColor"))
                     .scaleEffect(isScaling ? 1.0 : 1.5)
                     .animation(.easeInOut(duration: 0.5).repeatCount(3, autoreverses: true), value: isScaling)
                     .onAppear {
