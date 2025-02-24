@@ -186,6 +186,7 @@ struct RoomModelView: UIViewRepresentable {
 
     private func applyLayoutChanges(using modelEntity: Entity) {
         let entityNames = ["Bed0", "Sofa0", "Table0", "Chair0"]
+        var roomEntity: Entity?
         
         for name in entityNames {
             if let newEntity = modelEntity.findEntity(named: name),
@@ -193,7 +194,49 @@ struct RoomModelView: UIViewRepresentable {
                 print("\(name): \(existingEntity.transform)")
                 print("New\(name): \(newEntity.transform)")
                 existingEntity.move(to: newEntity.transform, relativeTo: existingEntity.parent, duration: 2)
+                roomEntity = existingEntity.parent
             }
+        }
+        
+        /// Add wheel chair
+        if let wheel_chair0 = modelEntity.findEntity(named: "wheel_chair0") {
+            roomEntity?.addChild(wheel_chair0)
+        }
+        
+        /// Animating chair
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if let wheel_chair0 = roomEntity?.findEntity(named: "wheel_chair0"),
+               let wheel_chair1 = modelEntity.findEntity(named: "wheel_chair1"),
+               let wheel_chair2 = modelEntity.findEntity(named: "wheel_chair2"),
+               let wheel_chair3 = modelEntity.findEntity(named: "wheel_chair3"),
+               let wheel_chair4 = modelEntity.findEntity(named: "wheel_chair4") {
+                
+                // Move through each target sequentially
+                let targets = [wheel_chair1, wheel_chair2, wheel_chair3, wheel_chair4]
+                moveWheelChairSequentially(wheel_chair0, to: targets)
+            }
+        }
+        
+    }
+    
+    
+    /// Move wheel_chair0 sequentially through wheel_chair1 → wheel_chair2 → wheel_chair3 → wheel_chair4
+    func moveWheelChairSequentially(_ entity: Entity, to targets: [Entity], index: Int = 0) {
+        guard index < targets.count else { 
+            /// Remove wheel chair
+            if let parent = entity.parent {
+                parent.removeChild(entity)
+            }
+            return } // Stop when finished
+
+        let target = targets[index]
+        
+        // Move the entity
+        entity.move(to: target.transform, relativeTo: entity.parent, duration: 2)
+        
+        // Schedule the next move after the current move duration
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            moveWheelChairSequentially(entity, to: targets, index: index + 1)
         }
     }
     

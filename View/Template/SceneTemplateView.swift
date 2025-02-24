@@ -53,12 +53,12 @@ struct SceneTemplateView: View {
     //        roughness: UIImage(named: "PlasterPlain001_ROUGHNESS_1K_METALNESS.png"))
     
     // Example rooms urls
-//    let roomFurnishedURL =  URL(string: "h")
-    let roomFurnishedLayout1URL = URL(string: "")
-    let roomFurnishedLayout2URL = URL(string: "")
-    let roomFurnishedLayout3URL = URL(string: "")
+    let roomFurnishedURL = Bundle.main.url(forResource: "Room-example_furnished", withExtension: "usdz")
+    let roomFurnishedLayout1URL = Bundle.main.url(forResource: "Room-example_furnished_layout1", withExtension: "usdz")
+    let roomFurnishedLayout2URL = Bundle.main.url(forResource: "Room-example_furnished_layout2", withExtension: "usdz")
+    let roomFurnishedLayout3URL = Bundle.main.url(forResource: "Room-example_furnished_layout3", withExtension: "usdz")
     // Example rooms urls
-    let roomFurnishedURL =  URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished.usdz?alt=media&token=441eb02a-8d09-423a-bdd0-141c792becdd")
+//    let roomFurnishedURL =  URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished.usdz?alt=media&token=441eb02a-8d09-423a-bdd0-141c792becdd")
 //    let roomFurnishedLayout1URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout1.usdz?alt=media&token=99312ba2-f654-4141-acde-8e4dc69dfa4f")
 //    let roomFurnishedLayout2URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout2.usdz?alt=media&token=de513235-a107-4ac7-8694-b5e2bfb48150")
 //    let roomFurnishedLayout3URL = URL(string: "https://firebasestorage.googleapis.com/v0/b/dingdong-251a1.firebasestorage.app/o/rooms%2FRoom-example_furnished_layout3.usdz?alt=media&token=10fdc6d4-62fc-4598-8575-f786769c9fa0")
@@ -257,11 +257,32 @@ struct SceneTemplateView: View {
         case .raw:
             break
         case .furnish:
-            handleRoomStateChange(nextState: .changeLayout1, url: roomFurnishedLayout1URL, heading: "Best Layout", bodyText: "\u{2022} Bed is not blocking the walkway\n\u{2022} Easy access to sofa and desk\n\u{2022} Most living space")
+            roomModelView?.changeLayout(url: roomFurnishedLayout1URL)
+            withAnimation(.easeInOut) {
+                self.heading = heading
+                self.bodyText = bodyText
+            }
+            self.isGenerating = false
+            exampleRoomState = .changeLayout1
+//            handleRoomStateChange(nextState: .changeLayout1, url: roomFurnishedLayout1URL, heading: "Best Layout", bodyText: "\u{2022} Bed is not blocking the walkway\n\u{2022} Easy access to sofa and desk\n\u{2022} Most living space")
         case .changeLayout1:
-            handleRoomStateChange(nextState: .changeLayout2, url: roomFurnishedLayout2URL, heading: "Less Space", bodyText: "\u{2022} Easy access to sofa\n\u{2022} Tight access to desk")
+            roomModelView?.changeLayout(url: roomFurnishedLayout2URL)
+            withAnimation(.easeInOut) {
+                self.heading = heading
+                self.bodyText = bodyText
+            }
+            self.isGenerating = false
+            exampleRoomState = .changeLayout2
+//            handleRoomStateChange(nextState: .changeLayout2, url: roomFurnishedLayout2URL, heading: "Less Space", bodyText: "\u{2022} Easy access to sofa\n\u{2022} Tight access to desk")
         case .changeLayout2:
-            handleRoomStateChange(nextState: .changeLayout3, url: roomFurnishedLayout3URL, heading: "Another One", bodyText: "\u{2022} Consider adding more storage at the corner")
+            roomModelView?.changeLayout(url: roomFurnishedLayout3URL)
+            withAnimation(.easeInOut) {
+                self.heading = heading
+                self.bodyText = bodyText
+            }
+            self.isGenerating = false
+            exampleRoomState = .changeLayout3
+//            handleRoomStateChange(nextState: .changeLayout3, url: roomFurnishedLayout3URL, heading: "Another One", bodyText: "\u{2022} Consider adding more storage at the corner")
         case .changeLayout3:
             break
         }
