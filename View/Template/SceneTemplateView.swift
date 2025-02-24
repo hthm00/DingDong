@@ -222,8 +222,7 @@ struct SceneTemplateView: View {
                             .foregroundStyle(Color("AccentColor"), Color("SecondaryColor"))
                             .symbolEffect(.bounce, value: count)
                             .onAppear() {
-                                count += 1
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                                     count += 1
                                 }
                             }
@@ -270,7 +269,7 @@ struct SceneTemplateView: View {
                             case .changeLayout2:
                                 PrimaryButton(text: "Try Again", size: size)
                             case .changeLayout3:
-                                NavigationLink(destination: ScanRoomView()) {
+                                NavigationLink(destination: HomeView()) {
                                     PrimaryButton(text: "Now Try Your Own Room!", size: size, willSpan: true)
                                 }
                             }

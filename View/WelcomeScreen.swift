@@ -45,11 +45,12 @@ struct WelcomeScreen: View {
                     // Title & action
                     VStack(alignment: .leading) {
                         Text(intro.title)
-                            .font(.custom("Merriweather-Black", size: 40))
+                            .font(.custom("Merriweather-Black", size: 35))
                             .foregroundStyle(Color("AccentColor"))
                             .fontWeight(.black)
                             .padding(.bottom,5)
                         Text(intro.subTitle)
+                            .foregroundStyle(Color("BlueColor"))
                             .font(Font.custom("Cambay-Regular", size: 16))
                         Spacer()
                         

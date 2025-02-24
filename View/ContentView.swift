@@ -14,7 +14,7 @@ struct ContentView: View {
     
     var body: some View {
         if isShowingHome {
-            HomeView(isActive: false)
+            HomeView()
                 .backgroundStyle(.white)
         } else {
             SplashScreenView(isShowingHome: $isShowingHome)
@@ -38,15 +38,14 @@ struct ContentView: View {
 
 struct HomeView: View {
     // View Properties
-    @State private var activeIntros: PageIntro = pageIntros[2]
-    @State var isActive: Bool
+    @State private var activeIntros: PageIntro = pageIntros[0]
     @State private var isShowingScanView = false
     var body: some View {
         GeometryReader {
             let size = $0.size
             if #available(iOS 17.0, *) {
     //            SceneTemplateView()
-                IntroView(isActive: $isActive)
+                IntroView()
             } else {
 //                IntroView(isActive: $isActive)
                 //            WelcomeScreen(intro: $activeIntros, isActive: $isActive, size: size)
@@ -61,7 +60,6 @@ struct IntroView: View {
     /// Load an overview video
     @State var player = AVPlayer(url: Bundle.main.url(forResource: "roomplan-large", withExtension: "mp4")!)
     @State var isVideoCompleted = false
-    @Binding var isActive: Bool
     
     var body: some View {
         GeometryReader {
