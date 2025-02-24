@@ -143,6 +143,7 @@ struct WelcomeScreen: View {
                 isViewShowing = true
             }
         })
+        .navigationBarBackButtonHidden(true)
     }
     
     func changeIntro(_ isPrevious: Bool = false) {
